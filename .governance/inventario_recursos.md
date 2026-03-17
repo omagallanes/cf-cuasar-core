@@ -46,8 +46,8 @@
 
 | Secret | Uso | Consume | Estado |
 |--------|-----|---------|--------|
-| `CF_API_TOKEN` | Token para API de Cloudflare | GitHub Actions / wrangler | 🔲 |
-| `CF_ACCOUNT_ID` | Identificador de cuenta para despliegues | GitHub Actions / wrangler | 🔲 |
+| `CLOUDFLARE_API_TOKEN` | Token para API de Cloudflare | GitHub Actions / wrangler / GitHub Codespaces | ✅ |
+| `CLOUDFLARE_ACCOUNT_ID` | Identificador de cuenta para despliegues | GitHub Actions / wrangler / GitHub Codespaces | ✅ |
 | `[AGREGAR]` | [Descripción] | [Worker/Service] | 🔲 |
 
 > **Nota:** Los valores de secrets nunca se documentan en este archivo. Usar `wrangler secret put` para gestión local.
@@ -60,7 +60,7 @@
 
 | Variable | Uso | Sensible | Estado |
 |----------|-----|----------|--------|
-| `[VAR_NAME]` | [Descripción del uso] | Sí | 🔲 |
+| `OPENAI_API_KEY` | Clave de API para inferencia OpenAI (almacenada en KV "secrets-api-inmo") | Sí | ✅ |
 
 ### 3.2. Frontend (`.env`)
 
@@ -84,13 +84,13 @@
 
 | Nombre en CF | ID | Binding | App | Estado |
 |--------------|----|---------|-----|--------|
-| `[NOMBRE_KV]` | [ID] | [BINDING_NAME] | [Worker/App] | 🔲 |
+| `secrets-api-inmo` | b9e80742f2a74d89b3e9083245b35709 | [BINDING_NAME] | [Worker/App] | ✅ |
 
-**Keys en `[NOMBRE_KV]`**
+**Keys en `secrets-api-inmo`**
 
 | Key | Descripción | Estado |
 |-----|-------------|--------|
-| `[KEY_NAME]` | [Propósito de la key] | 🔲 |
+| `OPENAI_API_KEY` | Clave de API para inferencia OpenAI | ✅ |
 
 ### 4.3 Bases de Datos (D1)
 
@@ -102,7 +102,9 @@
 
 | Nombre | Binding | App | Estado |
 |--------|---------|-----|--------|
-| `[BUCKET_NAME]` | [BINDING] | [Worker] | 🔲 |
+| `r2-almacen` | [BINDING] | [Worker] | ✅ |
+
+> **Nota:** Directorio creado: `dir-api-inmo/` dentro del bucket `r2-almacen`.
 
 ### 4.5 Queues
 
@@ -132,7 +134,7 @@
 
 | Proyecto | URL | App Asociada | Proveedor Git | Estado |
 |----------|-----|--------------|---------------|--------|
-| `[PAGES_NAME]` | [URL] | [APP] | [GitHub/GitLab] | 🔲 |
+| `cb-consulting` | https://cb-consulting.pages.dev/ | [APP] | GitHub | ✅ |
 
 ---
 
@@ -288,7 +290,7 @@ wrangler secret put [SECRET_NAME] --env [dev/staging]
 
 | Fecha | Cambio | Responsable | Aprobado Por |
 |-------|--------|-------------|--------------|
-| [YYYY-MM-DD] | [Descripción del cambio] | [Nombre] | [Nombre] |
+| 2026-03-17 | Actualización de recursos: GitHub Secrets (CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN), KV Namespace (secrets-api-inmo), OPENAI_API_KEY en KV, R2 Bucket (r2-almacen) con directorio dir-api-inmo/, Cloudflare Pages (cb-consulting) | inventariador | Usuario |
 
 ---
 
