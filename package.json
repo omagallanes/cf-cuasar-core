@@ -1,0 +1,29 @@
+{
+  "name": "cf-cuasar-core",
+  "version": "0.1.0",
+  "description": "VaaIA - Sistema de análisis inmobiliario con IA en Cloudflare Workers",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "vite build",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@cloudflare/workers-types": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "react": "^19.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "wrangler": "^3.0.0",
+    "@vitejs/plugin-react": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

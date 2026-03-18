@@ -181,15 +181,18 @@ Documentar las rutas, métodos y formatos de request/response de cada endpoint c
 
 ---
 
-### R14 — Variables de entorno del frontend
+
+### R14 — Variables de entorno del frontend (basadas en `.env`)
 
 **Prioridad:** Alta
 
-- Declarar y documentar todas las variables expuestas al frontend en CI.
-- Validar su presencia en tiempo de ejecución en lugar de en la carga del módulo.
-- Registrar en `inventario_recursos.md` con flag de sensibilidad.
+* Declarar y documentar todas las variables expuestas al frontend en archivos `.env` versionados (`.env`, `.env.production`, `.env.preview`, etc.) y mantener un `.env.example` como contrato mínimo obligatorio.
+* Prohibido depender de `.env.local` no documentados como única fuente de configuración.
+* Validar la presencia de variables en tiempo de ejecución (runtime) y no en la carga del módulo.
+* Registrar todas las variables en `inventario_recursos.md`, incluyendo entornos y nivel de sensibilidad.
+* Garantizar consistencia entre entornos (`dev`, `preview`, `prod`) mediante archivos `.env` explícitos, evitando valores implícitos o no definidos.
 
----
+ ---
 
 ### R15 — Inventario de recursos actualizado
 

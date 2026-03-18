@@ -95,9 +95,10 @@
 
 ### 4.1 Workers
 
-| Nombre | Binding | App/Proyecto | Puerto Dev | Estado CF | Último Deploy |
-|--------|---------|--------------|------------|-----------|---------------|
-| `[WORKER_NAME]` | `[BINDING]` | [Proyecto] | [8787] | 🔲 | [YYYY-MM-DD] |
+| Nombre | Bindings | App/Proyecto | Puerto Dev | Estado CF | Último Deploy |
+|--------|----------|--------------|------------|-----------|---------------|
+| `wk-api-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | API Worker | 8787 | 🔲 | - |
+| `wk-proceso-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | Workflow Worker | 8788 | 🔲 | - |
 
 ### 4.2 KV Namespaces
 
@@ -115,7 +116,7 @@
 
 | Nombre | Binding | App | ID | Estado |
 |--------|---------|-----|----|--------|
-| `[DB_NAME]` | [BINDING] | [Worker] | [ID] | 🔲 |
+| `db-inmo` | `CF_B_DB-INMO` | `wk-api-inmo`, `wk-proceso-inmo` | `871d7b6b-39b0-404b-9066-1ba1a7b8f50a` | ✅ |
 
 ### 4.4 Buckets R2
 
@@ -176,7 +177,9 @@
 
 | Clave o Binding | Tipo | Estado | Ubicación | Observaciones |
 |-----------------|------|--------|-----------|---------------|
-| `[BINDING_NAME]` | [KV/D1/R2/Queue/AI] | 🔲 | wrangler.toml/jsonc | [Descripción] |
+| `CF_B_KV_SECRETS` | KV | ✅ | wrangler.toml | Binding para KV de secretos (sigue convención R16) |
+| `CF_B_DB-INMO` | D1 | ✅ | wrangler.toml | Binding para base de datos D1 (sigue convención R16) |
+| `CF_B_R2_INMO` | R2 | ✅ | wrangler.toml | Binding para bucket R2 (sigue convención R16) |
 
 ---
 
@@ -314,6 +317,8 @@ wrangler secret put [SECRET_NAME] --env [dev/staging]
 
 | Fecha | Cambio | Responsable | Aprobado Por |
 |-------|--------|-------------|--------------|
+| 2026-03-18 | Sprint 1 completado: D1 Database `db-inmo` creada en Cloudflare con ID `871d7b6b-39b0-404b-9066-1ba1a7b8f50a`. Workers `wk-api-inmo` y `wk-proceso-inmo` configurados con bindings en wrangler.toml. Bindings actualizados: `CF_B_KV_SECRETS`, `CF_B_DB-INMO`, `CF_B_R2_INMO` | inventariador | Usuario |
+| 2026-03-18 | Actualización de nombres de recursos: Workers (`wk-api-inmo`, `wk-proceso-inmo`), D1 Database (`db-inmo`), Bindings (`CF_B_KV_SECRETS`, `CF_B_DB_INMO`, `CF_B_R2_INMO`) siguiendo convenciones de nomenclatura | inventariador | Usuario |
 | 2026-03-17 | Separación de agente wrangler: `cloudflare-wrangler-actions` (CI/CD) y `cloudflare-wrangler-deploy` (terminal directo). Añadida Sección 0 (Método de Despliegue) y archivo `.governance/metodo_despliegue.md` | orquestador | Usuario |
 | 2026-03-17 | Actualización de recursos: GitHub Secrets (CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN), KV Namespace (secrets-api-inmo), OPENAI_API_KEY en KV, R2 Bucket (r2-almacen) con directorio dir-api-inmo/, Cloudflare Pages (cb-consulting) | inventariador | Usuario |
 

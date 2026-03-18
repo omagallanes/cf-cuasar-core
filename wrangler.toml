@@ -1,0 +1,84 @@
+# Wrangler configuration for VaaIA - Sprint 1
+# API Worker: wk-api-inmo
+# Workflow Worker: wk-proceso-inmo
+
+# =============================================================================
+# API Worker Configuration (Primary Worker)
+# =============================================================================
+name = "wk-api-inmo"
+main = "src/workers/api/index.ts"
+compatibility_date = "2024-01-01"
+
+# Bindings for API Worker
+[[kv_namespaces]]
+binding = "CF_B_KV_SECRETS"
+id = "b9e80742f2a74d89b3e9083245b35709"
+
+[[d1_databases]]
+binding = "CF_B_DB-INMO"
+database_name = "db-inmo"
+database_id = "871d7b6b-39b0-404b-9066-1ba1a7b8f50a"
+
+[[r2_buckets]]
+binding = "CF_B_R2_INMO"
+bucket_name = "r2-almacen"
+
+# =============================================================================
+# Workflow Worker Configuration
+# =============================================================================
+[[workers]]
+name = "wk-proceso-inmo"
+main = "src/workers/workflow/index.ts"
+compatibility_date = "2024-01-01"
+
+# Bindings for Workflow Worker
+[[workers.kv_namespaces]]
+binding = "CF_B_KV_SECRETS"
+id = "b9e80742f2a74d89b3e9083245b35709"
+
+[[workers.d1_databases]]
+binding = "CF_B_DB-INMO"
+database_name = "db-inmo"
+database_id = "871d7b6b-39b0-404b-9066-1ba1a7b8f50a"
+
+[[workers.r2_buckets]]
+binding = "CF_B_R2_INMO"
+bucket_name = "r2-almacen"
+
+# =============================================================================
+# Environments
+# =============================================================================
+
+# Development Environment
+[env.dev]
+name = "wk-api-inmo-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "CF_B_KV_SECRETS"
+id = "b9e80742f2a74d89b3e9083245b35709"
+
+[[env.dev.d1_databases]]
+binding = "CF_B_DB-INMO"
+database_name = "db-inmo"
+database_id = "871d7b6b-39b0-404b-9066-1ba1a7b8f50a"
+
+[[env.dev.r2_buckets]]
+binding = "CF_B_R2_INMO"
+bucket_name = "r2-almacen"
+
+# Production Environment
+[env.production]
+name = "wk-api-inmo-prod"
+
+[[env.production.kv_namespaces]]
+binding = "CF_B_KV_SECRETS"
+id = "b9e80742f2a74d89b3e9083245b35709"
+
+[[env.production.d1_databases]]
+binding = "CF_B_DB-INMO"
+database_name = "db-inmo"
+database_id = "871d7b6b-39b0-404b-9066-1ba1a7b8f50a"
+
+[[env.production.r2_buckets]]
+binding = "CF_B_R2_INMO"
+bucket_name = "r2-almacen"
