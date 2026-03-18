@@ -5,7 +5,7 @@
 Vas a disponer de una aplicación web en la que gestionas proyectos y ejecutas, dentro de cada proyecto, una operación de negocio predefinida.
 
 * Cada proyecto representa un “contenedor” de trabajo.
-* En cada proyecto eliges una única operación de negocio desde un desplegable.
+* En cada proyecto se crea una operación de negocio (información provenniente de URL, en fmt JSON) desde un campo en form.
 * Esa operación de negocio no se inventa sobre la marcha: ya existe y viene definida como una plantilla fija.
 * La operación de negocio ejecuta una cadena de pasos en un orden ya establecido.
 * Tú solo aportas datos y parámetros mediante formularios con campos fijos.
@@ -33,7 +33,7 @@ Las funciones se comportan como “piezas” estándar que el sistema encadena.
 
 ## Dónde se crean y gestionan las funciones
 
-Antes de que los usuarios trabajen con proyectos y operaciones de negocio, el sistema dispone de un espacio de administración donde se definen las funciones disponibles.
+Antes de que los usuarios trabajen con proyectos y operaciones de negocio (análisis inmobiliario), el sistema dispone de un espacio de administración donde se definen las funciones disponibles para llevar a cabo las operaciones de negocio.
 
 * En esa zona se registran las funciones estándar que el sistema puede ejecutar.
 * Cada función queda definida una sola vez y luego puede reutilizarse en muchas operaciones de negocio.
