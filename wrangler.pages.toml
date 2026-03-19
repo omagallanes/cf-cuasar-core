@@ -1,0 +1,5 @@
+# Cloudflare Pages Configuration for cf-cuasar-core Frontend
+
+name = "cb-consulting"
+pages_build_output_dir = "src/frontend/dist"
+compatibility_date = "2024-01-01"

@@ -28,6 +28,7 @@ export interface HeaderProps {
   userAvatar?: string;
   onMenuClick?: () => void;
   onLogout?: () => void;
+  sidebarCollapsed?: boolean;
 }
 
 export interface MainLayoutProps {
