@@ -371,15 +371,40 @@ export function createRequestLogger(requestId: string, userId?: string): Structu
 }
 
 /**
+ * Helper function to get environment variable safely
+ * Works in both Node.js and Cloudflare Workers environments
+ */
+function getEnvVar(key: string, defaultValue: string = ''): string {
+  // Try to get from Cloudflare Workers environment
+  // @ts-ignore - env is available in Cloudflare Workers
+  if (typeof globalThis !== 'undefined' && globalThis.env) {
+    // @ts-ignore
+    return globalThis.env[key] || defaultValue;
+  }
+  
+  // Try to get from process.env (Node.js)
+  // @ts-ignore - process is available in Node.js
+  if (typeof process !== 'undefined' && process.env) {
+    // @ts-ignore
+    return process.env[key] || defaultValue;
+  }
+  
+  return defaultValue;
+}
+
+/**
  * Default logger instance
- * 
+ *
  * Configuration is read from environment variables:
  * - LOG_LEVEL: Log level threshold (debug, info, warn, error)
  * - ENVIRONMENT: Environment name (development, staging, production)
  */
+const logLevel = getEnvVar('LOG_LEVEL', 'info') as LogLevel;
+const environment = getEnvVar('ENVIRONMENT', 'production') as Environment;
+
 export const logger = new StructuredLogger({
-  level: (process.env.LOG_LEVEL as LogLevel) || 'info',
-  environment: (process.env.ENVIRONMENT as Environment) || 'production',
-  includeStackTraces: process.env.ENVIRONMENT === 'development',
-  useJsonFormat: process.env.ENVIRONMENT !== 'development'
+  level: logLevel,
+  environment: environment,
+  includeStackTraces: environment === 'development',
+  useJsonFormat: environment !== 'development'
 });

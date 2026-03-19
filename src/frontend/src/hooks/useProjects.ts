@@ -1,5 +1,6 @@
 /**
  * Hook para gestión de proyectos con TanStack Query
+ * Configuración optimizada de caché
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,9 +11,11 @@ import type {
   ProjectFilters,
 } from '../types/project';
 import type { PaginationParams } from '../types/api';
+import { CACHE_CONFIG } from '../lib/queryClient';
 
 /**
  * Hook para obtener todos los proyectos
+ * Optimizado con caché de 5 minutos
  */
 export function useProjects(
   filters?: ProjectFilters,
@@ -23,17 +26,22 @@ export function useProjects(
     queryKey: ['projects', filters, pagination],
     queryFn: () => projectService.getAllProjects(filters, pagination),
     enabled,
+    staleTime: CACHE_CONFIG.staleTime.projects,
+    gcTime: CACHE_CONFIG.gcTime.projects,
   });
 }
 
 /**
  * Hook para obtener un proyecto por su ID
+ * Optimizado con caché de 5 minutos
  */
 export function useProject(id: string, enabled = true) {
   return useQuery({
     queryKey: ['project', id],
     queryFn: () => projectService.getProjectById(id),
     enabled: enabled && !!id,
+    staleTime: CACHE_CONFIG.staleTime.projects,
+    gcTime: CACHE_CONFIG.gcTime.projects,
   });
 }
 
@@ -91,13 +99,15 @@ export function useDeleteProject() {
 
 /**
  * Hook para obtener estadísticas de proyectos
+ * Optimizado con caché de 1 minuto
  */
 export function useProjectStats(enabled = true) {
   return useQuery({
     queryKey: ['projectStats'],
     queryFn: () => projectService.getProjectStats(),
     enabled,
-    staleTime: 60000, // 1 minuto - las estadísticas cambian frecuentemente
+    staleTime: CACHE_CONFIG.staleTime.stats,
+    gcTime: CACHE_CONFIG.gcTime.stats,
   });
 }
 

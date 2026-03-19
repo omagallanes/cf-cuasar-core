@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Table from '../ui/Table';
 import { StatusBadge } from './StatusBadge';
 import { Project, ProjectStatus, ProjectPagination } from '../../types/project';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
 import { uiTexts } from '../../config/texts';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface ProjectListProps {
   projects: Project[];
@@ -28,28 +29,33 @@ export function ProjectList({
 }: ProjectListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | ''>('');
+  
+  // Debouncing de búsqueda con 300ms de delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    onFilterChange?.({ status: statusFilter || undefined, search: value || undefined });
-  };
-
-  const handleStatusChange = (value: string) => {
-    const status = value as ProjectStatus | '';
-    setStatusFilter(status);
-    onFilterChange?.({ status: status || undefined, search: searchTerm || undefined });
-  };
-
-  const formatDate = (dateString: string) => {
+  // Memoizar función de formato de fecha
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-ES', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     }).format(date);
-  };
+  }, []);
 
-  const columns = [
+  // Manejar cambios en búsqueda
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  // Manejar cambios en filtro de estado
+  const handleStatusChange = useCallback((value: string) => {
+    const status = value as ProjectStatus | '';
+    setStatusFilter(status);
+  }, []);
+
+  // Memoizar columnas para evitar re-renderizaciones innecesarias
+  const columns = useMemo(() => [
     {
       key: 'name',
       header: uiTexts.projectForm.nameLabel,
@@ -110,7 +116,15 @@ export function ProjectList({
         </div>
       )
     }
-  ];
+  ], [formatDate, onView, onEdit, onDelete, uiTexts]);
+
+  // Efecto para aplicar filtros cuando el término de búsqueda debouncado cambia
+  useMemo(() => {
+    onFilterChange?.({
+      status: statusFilter || undefined,
+      search: debouncedSearchTerm || undefined
+    });
+  }, [debouncedSearchTerm, statusFilter, onFilterChange]);
 
   return (
     <div className="space-y-4">
@@ -180,6 +194,7 @@ export function ProjectList({
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={pagination.page === 1}
               className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Página anterior"
             >
               <ChevronLeft size={20} />
             </button>
@@ -190,6 +205,7 @@ export function ProjectList({
               onClick={() => onPageChange?.(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
               className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Página siguiente"
             >
               <ChevronRight size={20} />
             </button>

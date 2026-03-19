@@ -88,6 +88,8 @@
 | `VITE_API_BASE_URL` | URL base de la API del backend | No | ✅ |
 | `VITE_PAGES_URL` | URL de Cloudflare Pages para el frontend | No | ✅ |
 | `VITE_CORS_ORIGINS` | Orígenes permitidos para CORS | No | ✅ |
+| `VITE_WORKFLOW_POLLING_INTERVAL` | Intervalo de polling para estado de workflow (segundos) | No | ✅ |
+| `VITE_WORKFLOW_POLLING_MAX_ATTEMPTS` | Máximo de intentos de polling para workflow | No | ✅ |
 
 **Archivos de configuración:**
 - `src/frontend/.env` (desarrollo)
@@ -102,10 +104,10 @@
 
 ### 4.1 Workers
 
-| Nombre | Bindings | App/Proyecto | Puerto Dev | Estado CF | Último Deploy |
-|--------|----------|--------------|------------|-----------|---------------|
-| `wk-api-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | API Worker | 8787 | 🔲 | - |
-| `wk-proceso-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | Workflow Worker | 8788 | 🔲 | - |
+| Nombre | Bindings | App/Proyecto | Puerto Dev | Estado CF | Último Deploy | URL |
+|--------|----------|--------------|------------|-----------|---------------|-----|
+| `wk-api-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | API Worker | 8787 | ✅ | 2026-03-19 | https://wk-api-inmo.levantecofem.workers.dev |
+| `wk-proceso-inmo` | CF_B_KV_SECRETS, CF_B_DB-INMO, CF_B_R2_INMO | Workflow Worker | 8788 | ✅ | 2026-03-19 | https://wk-proceso-inmo.levantecofem.workers.dev |
 
 ### 4.2 KV Namespaces
 
@@ -155,7 +157,7 @@
 
 | Nombre | Binding | Clase | Worker Asociado | Estado |
 |--------|---------|-------|-----------------|--------|
-| `analysis-workflow` | `ANALYSIS_WORKFLOW` | `AnalysisWorkflow` | `wk-proceso-inmo` | 🔲 |
+| `analysis-workflow` | `ANALYSIS_WORKFLOW` | `AnalysisWorkflow` | `wk-proceso-inmo` | ✅ |
 
 ### 4.7 Workers AI
 
@@ -196,13 +198,15 @@ src/frontend/
 │   │   ├── ui/           # Button, Input, Select, Textarea, Card, Table, Modal, Spinner, Badge, Alert
 │   │   ├── ui/form/      # FormGroup, FormLabel, FormError
 │   │   ├── projects/     # ProjectList, ProjectCard, ProjectForm, ProjectDetail, StatusBadge, ErrorMessage
-│   │   └── results/      # ResultsViewer, ReportTab, ReportLoading, ReportError
+│   │   ├── results/      # ResultsViewer, ReportTab, ReportLoading, ReportError
+│   │   ├── ErrorBoundary.tsx
+│   │   └── index.ts
 │   ├── pages/            # Dashboard, ProjectsPage, CreateProjectPage, ProjectDetailPage, ResultsPage
 │   ├── services/         # projectService.ts, workflowService.ts, resultsService.ts
-│   ├── hooks/            # useProjects, useWorkflow, useResults, useApi, useTexts
+│   ├── hooks/            # useProjects, useWorkflow, useResults, useApi, useTexts, useCreateProjectWithUI, useWorkflowPolling, useDebounce, useApiErrorHandler
 │   ├── config/           # texts.ts, errors.ts, validation.ts, navigation.ts, reports.ts
-│   ├── types/            # project.ts, workflow.ts, api.ts, components.ts
-│   ├── lib/              # apiClient.ts, queryClient.ts, queryProvider.tsx
+│   ├── types/            # project.ts, workflow.ts, api.ts, components.ts, errors.ts, index.ts
+│   ├── lib/              # apiClient.ts, queryClient.ts, queryProvider.tsx, schemas/projectSchema.ts
 │   └── styles/           # globals.css
 ├── public/               # Archivos estáticos
 ├── .env                  # Variables de entorno (desarrollo)
@@ -334,10 +338,13 @@ src/frontend/
 | State Management | TanStack React Query | 5.x | ✅ |
 | HTTP Client | Axios | 1.x | ✅ |
 | Markdown Rendering | React Markdown | 9.x | ✅ |
+| Code Syntax Highlighting | react-syntax-highlighter | 15.x | ✅ |
+| Markdown Extensions | remark-gfm | 4.x | ✅ |
 | Icons | Lucide React | 0.400.x | ✅ |
 | Validación | Zod | 3.x | ✅ |
 | Cloudflare Workers | Wrangler | 3.x | ✅ |
 | Cloudflare Workers Types | @cloudflare/workers-types | 4.x | ✅ |
+| Types | @types/react-syntax-highlighter | 15.x | ✅ |
 
 ---
 
@@ -423,6 +430,7 @@ wrangler secret put [SECRET_NAME] --env [dev/staging]
 
 | Fecha | Cambio | Responsable | Aprobado Por |
 |-------|--------|-------------|--------------|
+| 2026-03-19 | Sprint 5 completado: Workers desplegados exitosamente (wk-api-inmo: https://wk-api-inmo.levantecofem.workers.dev, wk-proceso-inmo: https://wk-proceso-inmo.levantecofem.workers.dev). Tareas completadas: 5.1 (Flujo de Creación de Proyecto), 5.2 (Flujo de Ejecución de Workflow), 5.3 (Visualización de Resultados), 5.4 (Gestión de Errores en Frontend), 5.5 (Optimizaciones). Archivos creados: src/frontend/src/lib/schemas/projectSchema.ts (esquema Zod para validación de I-JSON), src/frontend/src/hooks/useCreateProjectWithUI.ts (hook para creación de proyectos con estados de UI), src/frontend/src/hooks/useWorkflowPolling.ts (hook para polling de estado de workflow), src/frontend/src/hooks/useDebounce.ts (hook para debouncing), src/frontend/src/hooks/useApiErrorHandler.ts (hook para manejo de errores), src/frontend/src/types/errors.ts (tipos de error personalizados), src/frontend/src/components/ErrorBoundary.tsx (ErrorBoundary component). Archivos actualizados: ProjectForm, CreateProjectPage, ProjectDetail, ProjectDetailPage, ResultsPage, ResultsViewer, ReportTab, ProjectList, ProjectCard, StatusBadge, apiClient, queryClient, config/texts.ts, config/errors.ts, config/reports.ts, config/validation.ts, useProjects, useResults, useWorkflow, hooks/index.ts, types/index.ts, components/index.ts. Variables de entorno agregadas: VITE_WORKFLOW_POLLING_INTERVAL (10 segundos), VITE_WORKFLOW_POLLING_MAX_ATTEMPTS (3 intentos). Archivos de configuración actualizados: src/frontend/.env, src/frontend/.env.production, src/frontend/.env.example. Dependencias agregadas: react-syntax-highlighter, remark-gfm, @types/react-syntax-highlighter. Validación typecheck exitosa sin errores de TypeScript | inventariador | Usuario |
 | 2026-03-18 | Sprint 4 completado: Frontend React configurado en `src/frontend/`. Estructura de directorios creada (components/, pages/, services/, hooks/, config/, types/, lib/, styles/, public/). Componentes UI implementados (Button, Input, Select, Textarea, Card, Table, Modal, Spinner, Badge, Alert, Form components). Layout components (MainLayout, Sidebar, Header). Projects components (ProjectList, ProjectCard, ProjectForm, ProjectDetail, StatusBadge, ErrorMessage). Results components (ResultsViewer, ReportTab, ReportLoading, ReportError). Páginas creadas (Dashboard, ProjectsPage, CreateProjectPage, ProjectDetailPage, ResultsPage). Servicios API (projectService.ts, workflowService.ts, resultsService.ts). Hooks personalizados (useProjects, useWorkflow, useResults, useApi, useTexts). Configuraciones (texts.ts, errors.ts, validation.ts, navigation.ts, reports.ts). Variables de entorno documentadas (VITE_API_BASE_URL, VITE_PAGES_URL, VITE_CORS_ORIGINS). Archivos de configuración: vite.config.ts, tsconfig.json, tailwind.config.js, .env, .env.production, .env.example. Dependencias agregadas: react 19.x, react-dom 19.x, react-router-dom 7.x, axios 1.x, react-markdown 9.x, zod 3.x, @tanstack/react-query 5.x, lucide-react 0.400.x, tailwindcss 4.x, vite 5.x. Validación typecheck exitosa sin errores de TypeScript | inventariador | Usuario |
 | 2026-03-18 | Sprint 3 completado: Cloudflare Workflow `analysis-workflow` configurado en worker `wk-proceso-inmo`. Archivos creados: `src/workers/workflow/index.ts` (AnalysisWorkflow), `src/workers/workflow/orchestration.ts`, `src/workers/workflow/services/workflow.service.ts`, `src/workers/workflow/services/openai.service.ts`. Integración con OpenAI Responses API implementada (endpoint: https://api.openai.com/v1/responses, modelo: gpt-5.2). Estructura de almacenamiento R2 documentada (9 archivos markdown por proyecto). Bindings del workflow worker: KV (secrets-api-inmo), D1 (db-inmo), R2 (r2-almacen). Validación typecheck exitosa sin errores de TypeScript | inventariador | Usuario |
 | 2026-03-18 | Sprint 1 completado: D1 Database `db-inmo` creada en Cloudflare con ID `871d7b6b-39b0-404b-9066-1ba1a7b8f50a`. Workers `wk-api-inmo` y `wk-proceso-inmo` configurados con bindings en wrangler.toml. Bindings actualizados: `CF_B_KV_SECRETS`, `CF_B_DB-INMO`, `CF_B_R2_INMO` | inventariador | Usuario |

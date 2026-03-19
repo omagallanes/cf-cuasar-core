@@ -13,6 +13,7 @@ export interface ApiErrorResponse {
   error: string;
   details?: string;
   code?: string;
+  errors?: ValidationError[];
 }
 
 /**

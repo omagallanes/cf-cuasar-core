@@ -1,5 +1,6 @@
 /**
  * Hook para ejecución de workflows con TanStack Query
+ * Configuración optimizada de caché
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,6 +10,12 @@ import type {
   StartWorkflowInput,
   WorkflowProgress,
 } from '../types/workflow';
+import {
+  useWorkflowPolling,
+  WorkflowExecutionState,
+  type WorkflowPollingResult,
+} from './useWorkflowPolling';
+import { CACHE_CONFIG } from '../lib/queryClient';
 
 /**
  * Hook para iniciar un workflow
@@ -41,6 +48,8 @@ export function useExecution(executionId: string, enabled = true) {
     queryKey: ['execution', executionId],
     queryFn: () => workflowService.getExecution(executionId),
     enabled: enabled && !!executionId,
+    staleTime: CACHE_CONFIG.staleTime.workflow,
+    gcTime: CACHE_CONFIG.gcTime.workflow,
     refetchInterval: (query) => {
       // Refrescar automáticamente mientras esté en ejecución
       const data = query.state.data as WorkflowExecution | undefined;
@@ -60,6 +69,8 @@ export function useExecutionSteps(executionId: string, enabled = true) {
     queryKey: ['executionSteps', executionId],
     queryFn: () => workflowService.getExecutionSteps(executionId),
     enabled: enabled && !!executionId,
+    staleTime: CACHE_CONFIG.staleTime.workflow,
+    gcTime: CACHE_CONFIG.gcTime.workflow,
   });
 }
 
@@ -71,6 +82,8 @@ export function useExecutionProgress(executionId: string, enabled = true) {
     queryKey: ['executionProgress', executionId],
     queryFn: () => workflowService.getExecutionProgress(executionId),
     enabled: enabled && !!executionId,
+    staleTime: CACHE_CONFIG.staleTime.workflow,
+    gcTime: CACHE_CONFIG.gcTime.workflow,
     refetchInterval: (query) => {
       // Refrescar automáticamente mientras esté en ejecución
       const data = query.state.data as WorkflowProgress | undefined;
@@ -107,6 +120,8 @@ export function useProjectExecutions(projectId: string, enabled = true) {
     queryKey: ['projectExecutions', projectId],
     queryFn: () => workflowService.getProjectExecutions(projectId),
     enabled: enabled && !!projectId,
+    staleTime: CACHE_CONFIG.staleTime.workflow,
+    gcTime: CACHE_CONFIG.gcTime.workflow,
   });
 }
 
@@ -118,6 +133,8 @@ export function useLatestExecution(projectId: string, enabled = true) {
     queryKey: ['latestExecution', projectId],
     queryFn: () => workflowService.getLatestExecution(projectId),
     enabled: enabled && !!projectId,
+    staleTime: CACHE_CONFIG.staleTime.workflow,
+    gcTime: CACHE_CONFIG.gcTime.workflow,
   });
 }
 
@@ -157,6 +174,43 @@ export function useWorkflowMonitor(executionId: string, enabled = true) {
       executionQuery.refetch();
       progressQuery.refetch();
       stepsQuery.refetch();
+    },
+  };
+}
+
+/**
+ * Hook combinado para iniciar workflow y hacer polling de estado
+ * Combina el inicio del workflow con el monitoreo automático de su estado
+ */
+export function useStartWorkflowWithPolling() {
+  const startWorkflow = useStartWorkflow();
+
+  return {
+    ...startWorkflow,
+    mutateAsync: async (
+      input: StartWorkflowInput,
+      callbacks?: {
+        onStateChange?: (state: WorkflowExecutionState) => void;
+        onError?: (error: string) => void;
+        onComplete?: (result: WorkflowPollingResult) => void;
+      }
+    ) => {
+      // Iniciar el workflow
+      const execution = await startWorkflow.mutateAsync(input);
+      
+      // Iniciar polling del estado
+      const polling = useWorkflowPolling({
+        executionId: execution.id,
+        enabled: true,
+        onStateChange: callbacks?.onStateChange,
+        onError: callbacks?.onError,
+        onComplete: callbacks?.onComplete,
+      });
+
+      return {
+        execution,
+        polling,
+      };
     },
   };
 }

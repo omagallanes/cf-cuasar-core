@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import Badge from '../ui/Badge';
 import { ProjectStatus } from '../../types/project';
 import { uiTexts } from '../../config/texts';
@@ -7,8 +8,10 @@ interface StatusBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
-  const getStatusConfig = () => {
+// Memoizar StatusBadge para evitar re-renderizaciones innecesarias
+export const StatusBadge = memo(function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
+  // Memoizar configuración de estado
+  const config = useMemo(() => {
     switch (status) {
       case ProjectStatus.PENDING:
         return {
@@ -41,13 +44,11 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
           variant: 'secondary' as const,
         };
     }
-  };
-
-  const config = getStatusConfig();
+  }, [status]);
 
   return (
     <Badge variant={config.variant} size={size}>
       {config.label}
     </Badge>
   );
-}
+});

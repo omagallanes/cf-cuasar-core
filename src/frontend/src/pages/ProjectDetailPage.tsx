@@ -1,63 +1,55 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectDetail } from '../components/projects/ProjectDetail';
 import { ResultsViewer, Report } from '../components/results/ResultsViewer';
-import { Project } from '../types/project';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { uiTexts } from '../config/texts';
+import { useProject } from '../hooks/useProjects';
+import { useStartWorkflow } from '../hooks/useWorkflow';
+import { useWorkflowPolling, WorkflowExecutionState } from '../hooks/useWorkflowPolling';
+import { useProjectExecutions } from '../hooks/useWorkflow';
+import Modal from '../components/ui/Modal';
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  // Queries y Mutations
+  const { data: project, isLoading: projectLoading, error: projectError } = useProject(id || '');
+  const startWorkflow = useStartWorkflow();
+  const { data: executions } = useProjectExecutions(id || '');
+
+  // Estado local
   const [showResults, setShowResults] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
-  const [isRunningWorkflow, setIsRunningWorkflow] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!id) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        // TODO: Implementar llamada a API real
-        console.log('Fetching project:', id);
-
-        // Simulación de datos
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const mockProject: Project = {
-          id: id,
-          name: 'Análisis de mercado residencial',
-          description: 'Análisis completo del mercado inmobiliario residencial en la zona norte',
-          status: 'pending' as any,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          workflowId: 'wf-123',
-          userId: 'user-456'
-        };
-
-        setProject(mockProject);
-
-        // Si el proyecto está completado, cargar los resultados
-        if (mockProject.status === 'completed') {
-          loadReports(id);
-        }
-      } catch (err) {
-        setError(uiTexts.projectDetail.loadError);
-        console.error('Error fetching project:', err);
-      } finally {
-        setLoading(false);
+  // Polling de workflow
+  const workflowPolling = useWorkflowPolling({
+    enabled: false, // Se habilita manualmente al iniciar el workflow
+    onStateChange: (state) => {
+      console.log('Workflow state changed:', state);
+    },
+    onError: (error) => {
+      console.error('Workflow error:', error);
+    },
+    onComplete: (result) => {
+      console.log('Workflow completed:', result);
+      if (result.state === WorkflowExecutionState.COMPLETED_SUCCESS) {
+        loadReports(id!);
+        setShowResults(true);
       }
-    };
+    },
+  });
 
-    fetchProject();
-  }, [id]);
+  /**
+   * Verifica si hay análisis previos
+   */
+  const hasPreviousAnalysis = executions && executions.length > 0;
 
+  /**
+   * Carga los informes de resultados
+   */
   const loadReports = (projectId: string) => {
     // TODO: Implementar llamada a API real
     console.log('Loading reports for project:', projectId);
@@ -82,42 +74,49 @@ export function ProjectDetailPage() {
     setShowResults(true);
   };
 
-  const handleRunWorkflow = async () => {
-    if (!project) return;
-
-    setIsRunningWorkflow(true);
-    setError(null);
-
-    try {
-      // TODO: Implementar llamada a API real
-      console.log('Running workflow for project:', project.id);
-
-      // Simulación de ejecución
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Actualizar el estado del proyecto
-      setProject({
-        ...project,
-        status: 'in_progress' as any
-      });
-
-      // Simular que el workflow se completa después de un tiempo
-      setTimeout(() => {
-        setProject((prev: Project | null) => prev ? { ...prev, status: 'completed' as any } : null);
-        loadReports(project.id);
-      }, 3000);
-    } catch (err) {
-      setError(uiTexts.projectDetail.runAnalysisError);
-      console.error('Error running workflow:', err);
-    } finally {
-      setIsRunningWorkflow(false);
+  /**
+   * Maneja el clic en el botón de ejecutar análisis
+   */
+  const handleRunWorkflowClick = () => {
+    if (hasPreviousAnalysis) {
+      // Si hay análisis previos, mostrar modal de confirmación
+      setShowConfirmModal(true);
+    } else {
+      // Si no hay análisis previos, ejecutar directamente
+      handleRunWorkflow();
     }
   };
 
+  /**
+   * Ejecuta el workflow
+   */
+  const handleRunWorkflow = async () => {
+    if (!project) return;
+
+    setShowConfirmModal(false);
+
+    try {
+      // Iniciar el workflow
+      const result = await startWorkflow.mutateAsync({ projectId: project.id });
+      
+      // Iniciar polling del estado
+      workflowPolling.startPolling(result.id);
+    } catch (err) {
+      console.error('Error starting workflow:', err);
+      // El error se maneja a través del estado de la mutación
+    }
+  };
+
+  /**
+   * Maneja la edición del proyecto
+   */
   const handleEdit = () => {
     navigate(`/projects/${id}/edit`);
   };
 
+  /**
+   * Maneja la eliminación del proyecto
+   */
   const handleDelete = async () => {
     if (!confirm(uiTexts.projectDetail.deleteConfirm)) {
       return;
@@ -133,16 +132,33 @@ export function ProjectDetailPage() {
       // Navegar a la página de proyectos
       navigate('/projects');
     } catch (err) {
-      setError(uiTexts.projectDetail.deleteError);
       console.error('Error deleting project:', err);
     }
   };
 
+  /**
+   * Maneja la navegación de regreso
+   */
   const handleBack = () => {
     navigate('/projects');
   };
 
-  if (loading) {
+  /**
+   * Maneja la confirmación de re-ejecución
+   */
+  const handleConfirmReRun = () => {
+    handleRunWorkflow();
+  };
+
+  /**
+   * Maneja la cancelación del modal de confirmación
+   */
+  const handleCancelReRun = () => {
+    setShowConfirmModal(false);
+  };
+
+  // Estado de carga
+  if (projectLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center gap-3">
@@ -153,10 +169,11 @@ export function ProjectDetailPage() {
     );
   }
 
-  if (error) {
+  // Estado de error
+  if (projectError) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <p className="text-red-800">{error}</p>
+        <p className="text-red-800">{uiTexts.projectDetail.loadError}</p>
         <button
           onClick={handleBack}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -167,6 +184,7 @@ export function ProjectDetailPage() {
     );
   }
 
+  // Proyecto no encontrado
   if (!project) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
@@ -197,20 +215,46 @@ export function ProjectDetailPage() {
         project={project}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        onRunWorkflow={handleRunWorkflow}
-        isRunning={isRunningWorkflow}
+        onRunWorkflow={handleRunWorkflowClick}
+        isRunning={startWorkflow.isPending || workflowPolling.isPolling}
+        workflowResult={workflowPolling}
+        hasPreviousAnalysis={hasPreviousAnalysis}
+        onConfirmReRun={handleConfirmReRun}
       />
 
       {/* Results Viewer */}
-      {showResults && reports.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Resultados del Análisis</h2>
-          <ResultsViewer
-            reports={reports}
-            onRetry={(reportId) => console.log('Retry report:', reportId)}
-          />
-        </div>
+      {showResults && (
+        <ResultsViewer
+          reports={reports}
+        />
       )}
+
+      {/* Modal de Confirmación para Re-ejecutar */}
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={handleCancelReRun}
+        title={uiTexts.workflow.reRunAnalysis}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-700">
+            {uiTexts.workflow.confirmReRun}
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={handleCancelReRun}
+              className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              {uiTexts.buttons.cancel}
+            </button>
+            <button
+              onClick={handleConfirmReRun}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              {uiTexts.workflow.runAnalysis}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

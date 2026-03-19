@@ -14,66 +14,66 @@ export interface ReportConfig {
 export const reportConfigs: ReportConfig[] = [
   {
     id: 'resumen',
-    label: 'Resumen Ejecutivo',
+    label: 'Resumen',
     title: 'Resumen Ejecutivo',
     description: 'Resumen general del análisis con puntos clave y conclusiones principales.',
     icon: 'FileText'
   },
   {
-    id: 'analisis_mercado',
-    label: 'Análisis de Mercado',
-    title: 'Análisis de Mercado',
-    description: 'Análisis detallado del mercado actual con tendencias y segmentos.',
-    icon: 'BarChart3'
+    id: 'datos_clave',
+    label: 'Datos Clave',
+    title: 'Datos Clave del Negocio',
+    description: 'Información fundamental y métricas clave del negocio analizado.',
+    icon: 'Key'
   },
   {
-    id: 'tendencias',
-    label: 'Tendencias',
-    title: 'Tendencias del Mercado',
-    description: 'Análisis de tendencias emergentes y patrones del mercado.',
-    icon: 'TrendingUp'
+    id: 'activo_fisico',
+    label: 'Activo Físico',
+    title: 'Análisis del Activo Físico',
+    description: 'Evaluación detallada de los activos físicos del negocio.',
+    icon: 'Building2'
   },
   {
-    id: 'competencia',
-    label: 'Competencia',
-    title: 'Análisis de Competencia',
-    description: 'Evaluación de la competencia y análisis de ventajas competitivas.',
-    icon: 'Users'
-  },
-  {
-    id: 'oportunidades',
-    label: 'Oportunidades',
-    title: 'Oportunidades de Inversión',
-    description: 'Identificación de oportunidades de inversión y zonas con mayor potencial.',
+    id: 'activo_estrategico',
+    label: 'Activo Estratégico',
+    title: 'Análisis del Activo Estratégico',
+    description: 'Análisis de posicionamiento estratégico y ventajas competitivas.',
     icon: 'Target'
   },
   {
-    id: 'riesgos',
-    label: 'Riesgos',
-    title: 'Análisis de Riesgos',
-    description: 'Evaluación de riesgos del mercado y estrategias de mitigación.',
-    icon: 'AlertTriangle'
+    id: 'activo_financiero',
+    label: 'Activo Financiero',
+    title: 'Análisis del Activo Financiero',
+    description: 'Evaluación de la situación financiera y proyecciones.',
+    icon: 'DollarSign'
   },
   {
-    id: 'recomendaciones',
-    label: 'Recomendaciones',
-    title: 'Recomendaciones',
-    description: 'Recomendaciones estratégicas y próximos pasos para la inversión.',
+    id: 'activo_regulado',
+    label: 'Activo Regulado',
+    title: 'Análisis del Activo Regulado',
+    description: 'Análisis del marco regulatorio y cumplimiento.',
+    icon: 'Scale'
+  },
+  {
+    id: 'lectura_inversor',
+    label: 'Lectura Inversor',
+    title: 'Lectura para Inversores',
+    description: 'Análisis desde la perspectiva de un inversor potencial.',
+    icon: 'TrendingUp'
+  },
+  {
+    id: 'lectura_emprendedor',
+    label: 'Lectura Emprendedor',
+    title: 'Lectura para Emprendedores',
+    description: 'Análisis desde la perspectiva de un emprendedor.',
     icon: 'Lightbulb'
   },
   {
-    id: 'proyecciones',
-    label: 'Proyecciones',
-    title: 'Proyecciones del Mercado',
-    description: 'Proyecciones futuras del mercado a 12 y 24 meses.',
-    icon: 'LineChart'
-  },
-  {
-    id: 'conclusiones',
-    label: 'Conclusiones',
-    title: 'Conclusiones',
-    description: 'Conclusiones finales y resumen ejecutivo del análisis.',
-    icon: 'CheckCircle'
+    id: 'lectura_propietario',
+    label: 'Lectura Propietario',
+    title: 'Lectura para Propietarios',
+    description: 'Análisis desde la perspectiva del propietario actual.',
+    icon: 'User'
   }
 ];
 

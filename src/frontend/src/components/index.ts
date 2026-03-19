@@ -12,3 +12,6 @@ export * from './projects';
 
 // Results components
 export * from './results';
+
+// Error handling components
+export { default as ErrorBoundary, ErrorFallback } from './ErrorBoundary';

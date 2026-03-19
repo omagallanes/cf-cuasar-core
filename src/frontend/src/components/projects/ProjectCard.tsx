@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import Card from '../ui/Card';
 import { StatusBadge } from './StatusBadge';
 import { Project } from '../../types/project';
@@ -9,15 +10,17 @@ interface ProjectCardProps {
   onClick?: () => void;
 }
 
-export function ProjectCard({ project, onClick }: ProjectCardProps) {
-  const formatDate = (dateString: string) => {
+// Memoizar ProjectCard para evitar re-renderizaciones innecesarias
+export const ProjectCard = memo(function ProjectCard({ project, onClick }: ProjectCardProps) {
+  // Memoizar función de formato de fecha
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-ES', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     }).format(date);
-  };
+  }, []);
 
   return (
     <Card
@@ -57,4 +60,4 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
       </div>
     </Card>
   );
-}
+});

@@ -50,7 +50,12 @@ export const uiTexts = {
     title: 'Crear Nuevo Proyecto',
     subtitle: 'Completa el formulario para crear un nuevo proyecto de análisis',
     back: 'Volver',
-    createError: 'Error al crear el proyecto. Por favor, intenta nuevamente.'
+    createError: 'Error al crear el proyecto. Por favor, intenta nuevamente.',
+    validating: 'Validando I-JSON...',
+    submitting: 'Creando proyecto...',
+    success: 'Proyecto creado exitosamente',
+    error: 'Error al crear el proyecto',
+    validationError: 'Error de validación en el I-JSON'
   },
 
   // Project Detail
@@ -67,11 +72,70 @@ export const uiTexts = {
   // Results
   results: {
     title: 'Resultados del Análisis',
-    subtitle: 'Informes detallados del análisis de mercado',
+    subtitle: 'Informes detallados del análisis de negocio',
     back: 'Volver',
     backToProject: 'Volver al Proyecto',
     loading: 'Cargando informes...',
-    loadError: 'Error al cargar los informes. Por favor, intenta nuevamente.'
+    loadError: 'Error al cargar los informes. Por favor, intenta nuevamente.',
+    download: 'Descargar',
+    downloadReport: 'Descargar Informe',
+    downloadAll: 'Descargar Todos',
+    downloadAllReports: 'Descargar Todos los Informes',
+    reports: {
+      resumen: {
+        title: 'Resumen Ejecutivo',
+        description: 'Resumen general del análisis con puntos clave y conclusiones principales.'
+      },
+      datos_clave: {
+        title: 'Datos Clave del Negocio',
+        description: 'Información fundamental y métricas clave del negocio analizado.'
+      },
+      activo_fisico: {
+        title: 'Análisis del Activo Físico',
+        description: 'Evaluación detallada de los activos físicos del negocio.'
+      },
+      activo_estrategico: {
+        title: 'Análisis del Activo Estratégico',
+        description: 'Análisis de posicionamiento estratégico y ventajas competitivas.'
+      },
+      activo_financiero: {
+        title: 'Análisis del Activo Financiero',
+        description: 'Evaluación de la situación financiera y proyecciones.'
+      },
+      activo_regulado: {
+        title: 'Análisis del Activo Regulado',
+        description: 'Análisis del marco regulatorio y cumplimiento.'
+      },
+      lectura_inversor: {
+        title: 'Lectura para Inversores',
+        description: 'Análisis desde la perspectiva de un inversor potencial.'
+      },
+      lectura_emprendedor: {
+        title: 'Lectura para Emprendedores',
+        description: 'Análisis desde la perspectiva de un emprendedor.'
+      },
+      lectura_propietario: {
+        title: 'Lectura para Propietarios',
+        description: 'Análisis desde la perspectiva del propietario actual.'
+      }
+    },
+    status: {
+      loading: 'Cargando informe...',
+      ready: 'Listo',
+      error: 'Error',
+      pending: 'Pendiente'
+    },
+    tabs: {
+      all: 'Todos',
+      available: 'Disponibles',
+      loading: 'Cargando'
+    },
+    actions: {
+      refresh: 'Actualizar',
+      print: 'Imprimir',
+      share: 'Compartir',
+      export: 'Exportar'
+    }
   },
 
   // Loading States
@@ -121,6 +185,37 @@ export const uiTexts = {
     completed: 'Completado',
     failed: 'Fallido',
     cancelled: 'Cancelado'
+  },
+
+  // Workflow
+  workflow: {
+    runAnalysis: 'Ejecutar Análisis',
+    running: 'Ejecutando...',
+    reRunAnalysis: 'Reejecutar Análisis',
+    confirmReRun: 'Ya existe un análisis previo para este proyecto. ¿Deseas ejecutar un nuevo análisis?',
+    executionStatus: {
+      notStarted: 'No iniciado',
+      initiated: 'Iniciado',
+      running: 'En ejecución',
+      completedSuccess: 'Completado correctamente',
+      completedError: 'Completado con errores',
+    },
+    progress: {
+      label: 'Progreso',
+      currentStep: 'Paso actual',
+      stepsCompleted: 'Pasos completados',
+      of: 'de',
+    },
+    errors: {
+      maxAttemptsExceeded: 'Se excedió el máximo de intentos de verificación',
+      executionFailed: 'La ejecución del workflow falló',
+      networkError: 'Error de conexión al verificar el estado',
+    },
+    polling: {
+      checking: 'Verificando estado...',
+      attempt: 'Intento',
+      of: 'de',
+    },
   }
 } as const;
 
