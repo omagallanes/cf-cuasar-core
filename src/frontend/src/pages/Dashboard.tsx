@@ -1,44 +1,68 @@
+import { useNavigate } from 'react-router-dom';
+import { useProjectStats } from '../hooks/useProjects';
 import Card from '../components/ui/Card';
-import { ProjectStats } from '../types/project';
+import Spinner from '../components/ui/Spinner';
+import { ErrorMessage } from '../components/projects/ErrorMessage';
+import { ProjectStats as ProjectStatsType, Project } from '../types/project';
 import { FolderOpen, Clock, CheckCircle, AlertCircle, XCircle, PauseCircle } from 'lucide-react';
 import { uiTexts } from '../config/texts';
 
-interface DashboardProps {
-  stats: ProjectStats;
-  recentProjects?: Array<{
-    id: string;
-    name: string;
-    status: string;
-    updatedAt: string;
-  }>;
-}
+export function Dashboard() {
+  const navigate = useNavigate();
+  const { data: stats, isLoading, error } = useProjectStats();
 
-export function Dashboard({ stats, recentProjects }: DashboardProps) {
+  // Estados de carga y error
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage 
+        message={error instanceof Error ? error.message : 'Error al cargar estadísticas'} 
+      />
+    );
+  }
+
+  // Usar valores por defecto si stats es undefined
+  const statsData: ProjectStatsType = stats || {
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    completed: 0,
+    failed: 0,
+    cancelled: 0
+  };
+
   const statCards = [
     {
       title: uiTexts.dashboard.stats.totalProjects,
-      value: stats.total,
+      value: statsData.total,
       icon: FolderOpen,
       color: 'bg-blue-100 text-blue-600',
       bgColor: 'bg-blue-50 border-blue-200'
     },
     {
       title: uiTexts.dashboard.stats.inProgress,
-      value: stats.inProgress,
+      value: statsData.inProgress,
       icon: Clock,
       color: 'bg-yellow-100 text-yellow-600',
       bgColor: 'bg-yellow-50 border-yellow-200'
     },
     {
       title: uiTexts.dashboard.stats.completed,
-      value: stats.completed,
+      value: statsData.completed,
       icon: CheckCircle,
       color: 'bg-green-100 text-green-600',
       bgColor: 'bg-green-50 border-green-200'
     },
     {
       title: uiTexts.dashboard.stats.failed,
-      value: stats.failed,
+      value: statsData.failed,
       icon: XCircle,
       color: 'bg-red-100 text-red-600',
       bgColor: 'bg-red-50 border-red-200'
@@ -52,6 +76,11 @@ export function Dashboard({ stats, recentProjects }: DashboardProps) {
       month: 'short',
       year: 'numeric'
     }).format(date);
+  };
+
+  // Función para navegar a los detalles del proyecto
+  const handleProjectClick = (id: string) => {
+    navigate(`/projects/${id}`);
   };
 
   return (
@@ -92,7 +121,7 @@ export function Dashboard({ stats, recentProjects }: DashboardProps) {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">{uiTexts.dashboard.stats.pending}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                  <p className="text-2xl font-bold text-gray-900">{statsData.pending}</p>
                 </div>
               </div>
             </div>
@@ -108,7 +137,7 @@ export function Dashboard({ stats, recentProjects }: DashboardProps) {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">{uiTexts.dashboard.stats.cancelled}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.cancelled}</p>
+                  <p className="text-2xl font-bold text-gray-900">{statsData.cancelled}</p>
                 </div>
               </div>
             </div>
@@ -116,28 +145,30 @@ export function Dashboard({ stats, recentProjects }: DashboardProps) {
         </Card>
       </div>
 
-      {/* Recent Projects */}
-      {recentProjects && recentProjects.length > 0 && (
-        <Card className="border border-gray-200">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{uiTexts.dashboard.recentProjects}</h2>
-            <div className="space-y-3">
-              {recentProjects.map((project) => (
-                <div
-                  key={project.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{project.name}</p>
-                    <p className="text-sm text-gray-500">{uiTexts.dashboard.updated} {formatDate(project.updatedAt)}</p>
-                  </div>
-                  <span className="text-sm text-gray-500">{project.status}</span>
-                </div>
-              ))}
-            </div>
+      {/* Recent Projects Section */}
+      <Card className="border border-gray-200">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">{uiTexts.dashboard.recentProjects}</h2>
+            <button
+              onClick={() => navigate('/projects')}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+            >
+              Ver todos
+            </button>
           </div>
-        </Card>
-      )}
+          <div className="text-center py-8 text-gray-500">
+            <FolderOpen size={48} className="mx-auto mb-3 text-gray-400" />
+            <p>No hay proyectos recientes</p>
+            <button
+              onClick={() => navigate('/projects/create')}
+              className="mt-3 text-primary-600 hover:text-primary-700 font-medium"
+            >
+              Crear nuevo proyecto
+            </button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

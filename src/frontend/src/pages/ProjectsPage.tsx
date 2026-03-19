@@ -1,92 +1,91 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProjects, useDeleteProject } from '../hooks/useProjects';
 import Button from '../components/ui/Button';
+import Spinner from '../components/ui/Spinner';
+import { ErrorMessage } from '../components/projects/ErrorMessage';
 import { ProjectList } from '../components/projects/ProjectList';
+import { ProjectCard } from '../components/projects/ProjectCard';
 import { Project, ProjectPagination, ProjectFilters } from '../types/project';
 import { Plus, Grid, List } from 'lucide-react';
 import { uiTexts } from '../config/texts';
 
 export function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const navigate = useNavigate();
+  
+  // Estados locales
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [filters, setFilters] = useState<ProjectFilters>({});
   const [pagination, setPagination] = useState<ProjectPagination>({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 0
   });
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [filters, setFilters] = useState<ProjectFilters>({});
 
-  // TODO: Implementar llamada a API real
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setLoading(true);
-      try {
-        // Simulación de datos
-        const mockProjects: Project[] = [
-          {
-            id: '1',
-            name: 'Análisis de mercado residencial',
-            description: 'Análisis completo del mercado inmobiliario residencial en la zona norte',
-            status: 'pending' as any,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
-          {
-            id: '2',
-            name: 'Evaluación de propiedades comerciales',
-            description: 'Evaluación de oportunidades en propiedades comerciales del centro',
-            status: 'in_progress' as any,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            updatedAt: new Date(Date.now() - 86400000).toISOString()
-          }
-        ];
+  // Hooks de proyectos
+  const { data: response, isLoading, error, refetch } = useProjects(filters, pagination);
+  const deleteMutation = useDeleteProject();
 
-        setProjects(mockProjects);
-        setPagination({
-          page: 1,
-          limit: 10,
-          total: mockProjects.length,
-          totalPages: 1
-        });
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Extraer proyectos y paginación de la respuesta
+  const projects = response?.projects || [];
+  const actualPagination = response?.pagination || pagination;
 
-    fetchProjects();
-  }, [filters]);
-
+  // Manejar navegación a detalles del proyecto
   const handleViewProject = (project: Project) => {
-    // TODO: Navegar a la página de detalles
-    console.log('View project:', project.id);
+    navigate(`/projects/${project.id}`);
   };
 
+  // Manejar edición de proyecto
   const handleEditProject = (project: Project) => {
-    // TODO: Navegar a la página de edición
-    console.log('Edit project:', project.id);
+    navigate(`/projects/${project.id}/edit`);
   };
 
+  // Manejar eliminación de proyecto
   const handleDeleteProject = (project: Project) => {
-    // TODO: Implementar eliminación
-    console.log('Delete project:', project.id);
+    if (confirm('¿Eliminar este proyecto?')) {
+      deleteMutation.mutate(project.id, {
+        onSuccess: () => {
+          // Refrescar la lista después de eliminar
+          refetch();
+        }
+      });
+    }
   };
 
+  // Manejar cambio de página
   const handlePageChange = (page: number) => {
     setPagination({ ...pagination, page });
   };
 
+  // Manejar cambio de filtros
   const handleFilterChange = (newFilters: ProjectFilters) => {
     setFilters(newFilters);
     setPagination({ ...pagination, page: 1 });
   };
 
+  // Manejar creación de nuevo proyecto
   const handleCreateProject = () => {
-    // TODO: Navegar a la página de creación
-    console.log('Create new project');
+    navigate('/projects/create');
   };
+
+  // Estado de carga
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <ErrorMessage 
+        message={error instanceof Error ? error.message : 'Error al cargar proyectos'} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -128,17 +127,48 @@ export function ProjectsPage() {
         </button>
       </div>
 
-      {/* Project List */}
-      <ProjectList
-        projects={projects}
-        pagination={pagination}
-        loading={loading}
-        onView={handleViewProject}
-        onEdit={handleEditProject}
-        onDelete={handleDeleteProject}
-        onPageChange={handlePageChange}
-        onFilterChange={handleFilterChange}
-      />
+      {/* Vista de cuadrícula o lista */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map(project => (
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              onClick={() => handleViewProject(project)} 
+            />
+          ))}
+        </div>
+      ) : (
+        <ProjectList
+          projects={projects}
+          pagination={actualPagination}
+          loading={isLoading}
+          onView={handleViewProject}
+          onEdit={handleEditProject}
+          onDelete={handleDeleteProject}
+          onPageChange={handlePageChange}
+          onFilterChange={handleFilterChange}
+        />
+      )}
+
+      {/* Estado vacío */}
+      {projects.length === 0 && !isLoading && (
+        <div className="text-center py-12">
+          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <Plus size={32} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No hay proyectos
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Crea tu primer proyecto para comenzar
+          </p>
+          <Button onClick={handleCreateProject}>
+            <Plus size={20} className="mr-2" />
+            {uiTexts.projects.newProject}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

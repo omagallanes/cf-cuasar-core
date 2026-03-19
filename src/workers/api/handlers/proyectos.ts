@@ -10,6 +10,7 @@
 import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { createRequestLogger } from '../utils/logger';
+import { ProjectService } from '../services/project.service';
 
 // Types for Cloudflare bindings
 type Env = {
@@ -677,6 +678,38 @@ export const deleteProject = async (c: Context<AppContext>): Promise<Response> =
 };
 
 /**
+ * Handler: GET /api/v1/proyectos/stats
+ *
+ * Obtiene estadísticas agregadas de proyectos.
+ *
+ * Response 200: { data: { total, byEstado, recientes } }
+ * Response 500: { error: "..." }
+ */
+export const getProjectStats = async (c: Context<AppContext>): Promise<Response> => {
+  const requestId = c.req.header('x-request-id') || crypto.randomUUID();
+  const requestLogger = createRequestLogger(requestId);
+  
+  try {
+    requestLogger.info('Get project stats request');
+    
+    const env = c.env as Env;
+    const projectService = new ProjectService(env);
+    
+    // Get statistics from service
+    const stats = await projectService.getProjectStats();
+    
+    requestLogger.debug('Project stats retrieved successfully', { total: stats.total, recientes: stats.recientes });
+    return c.json({ data: stats });
+  } catch (error) {
+    requestLogger.error('Error getting project stats', error);
+    return c.json(
+      { error: 'Error al obtener estadísticas de proyectos' },
+      500
+    );
+  }
+};
+
+/**
  * ========================================
  * ROUTER EXPORT
  * ========================================
@@ -703,6 +736,9 @@ export const createProyectosRouter = () => {
   
   // DELETE /api/v1/proyectos/:proyecto_id - Delete project
   router.delete('/:proyecto_id', deleteProject);
+  
+  // GET /api/v1/proyectos/stats - Get project statistics
+  router.get('/stats', getProjectStats);
   
   return router;
 };

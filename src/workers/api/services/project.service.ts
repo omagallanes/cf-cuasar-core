@@ -19,6 +19,23 @@ import type {
 import { logger } from '../utils/logger';
 
 /**
+ * ProjectStats Interface
+ *
+ * Estadísticas de proyectos para el dashboard.
+ * Proporciona información agregada sobre los proyectos en el sistema.
+ *
+ * @interface ProjectStats
+ */
+export interface ProjectStats {
+  /** Total de proyectos en el sistema */
+  total: number;
+  /** Conteo de proyectos agrupados por estado */
+  byEstado: { estado: string; count: number }[];
+  /** Proyectos creados en los últimos 7 días */
+  recientes: number;
+}
+
+/**
  * ProjectService Class
  * 
  * Servicio para gestión de proyectos en la base de datos D1.
@@ -403,5 +420,72 @@ export class ProjectService {
       fecha_analisis_fin: row.fecha_analisis_fin as string | null,
       i_json_url: row.i_json_url as string | null,
     }));
+  }
+
+  /**
+   * Get project statistics
+   *
+   * Calcula estadísticas agregadas de proyectos para el dashboard.
+   * Incluye total de proyectos, distribución por estado y proyectos recientes.
+   *
+   * @returns Estadísticas de proyectos
+   * @throws Error si falla la consulta a la base de datos
+   */
+  async getProjectStats(): Promise<ProjectStats> {
+    logger.debug('Getting project statistics');
+    
+    try {
+      // Calcular fecha de hace 7 días para proyectos recientes
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoIso = sevenDaysAgo.toISOString();
+
+      // Ejecutar consultas en paralelo para mejor rendimiento
+      const [totalResult, byEstadoResult, recientesResult] = await Promise.all([
+        // Total de proyectos
+        this.db
+          .prepare('SELECT COUNT(*) as total FROM ani_proyectos')
+          .first<{ total: number }>(),
+
+        // Conteo por estado
+        this.db
+          .prepare(`
+            SELECT estado, COUNT(*) as count
+            FROM ani_proyectos
+            GROUP BY estado
+            ORDER BY count DESC
+          `)
+          .all<{ estado: string; count: number }>(),
+
+        // Proyectos recientes (últimos 7 días)
+        this.db
+          .prepare(`
+            SELECT COUNT(*) as recientes
+            FROM ani_proyectos
+            WHERE fecha_creacion >= ?
+          `)
+          .bind(sevenDaysAgoIso)
+          .first<{ recientes: number }>(),
+      ]);
+
+      // Procesar resultados
+      const total = totalResult?.total ?? 0;
+      const byEstado = byEstadoResult.results.map(row => ({
+        estado: row.estado,
+        count: row.count,
+      }));
+      const recientes = recientesResult?.recientes ?? 0;
+
+      logger.debug('Project statistics retrieved', { total, byEstado, recientes });
+
+      return {
+        total,
+        byEstado,
+        recientes,
+      };
+    } catch (error) {
+      logger.error('Error getting project statistics', { error });
+      throw new Error(`Failed to get project statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 }
