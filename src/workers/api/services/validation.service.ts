@@ -57,12 +57,10 @@ export class ValidationService {
    * @returns Resultado de la validación con detalles de errores si los hay
    */
   validateIJson(iJson: Record<string, any>): ValidationResult {
-    logger.debug('Validating I-JSON', { fields: Object.keys(iJson) });
-    
     const errors: ValidationErrorDetail[] = [];
 
     // Validate that iJson is an object
-    if (typeof iJson !== 'object' || iJson === null) {
+    if (iJson === null || iJson === undefined || typeof iJson !== 'object') {
       return {
         valid: false,
         errors: [{
@@ -71,6 +69,8 @@ export class ValidationService {
         }]
       };
     }
+
+    logger.debug('Validating I-JSON', { fields: Object.keys(iJson) });
 
     // Validate required fields
     for (const field of ValidationService.REQUIRED_FIELDS) {

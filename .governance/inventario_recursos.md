@@ -175,7 +175,7 @@
 
 | Proyecto | URL | App Asociada | Proveedor Git | Estado |
 |----------|-----|--------------|---------------|--------|
-| `cb-consulting` | https://26da22cb.cb-consulting.pages.dev | [APP] | GitHub | ✅ Desplegado |
+| `cb-consulting` | https://cb-consulting.pages.dev/ | [APP] | GitHub | ✅ Desplegado |
 
 **Información de Despliegue:**
 
@@ -439,6 +439,7 @@ wrangler secret put [SECRET_NAME] --env [dev/staging]
 
 | Fecha | Cambio | Responsable | Aprobado Por |
 |-------|--------|-------------|--------------|
+| 2026-03-19 | Corrección de URL de Cloudflare Pages de `https://26da22cb.cb-consulting.pages.dev` a `https://cb-consulting.pages.dev/` | inventariador | usuario |
 | 2026-03-19 | Nuevo despliegue del frontend con correcciones de UI. URL actualizada: https://26da22cb.cb-consulting.pages.dev (anterior: https://234c4ccc.cb-consulting.pages.dev). Motivo: Corrección de problema de UI por desincronización entre menú lateral y rutas de React Router. Archivos actualizados: src/frontend/src/config/navigation.ts (eliminadas rutas no definidas), src/frontend/src/pages/NotFoundPage.tsx (creado), src/frontend/src/App.tsx (agregada ruta catch-all), src/frontend/src/pages/index.ts (actualizado) | inventariador | Usuario |
 | 2026-03-19 | Frontend desplegado exitosamente a Cloudflare Pages. Proyecto cb-consulting desplegado en URL: https://234c4ccc.cb-consulting.pages.dev. Build exitoso: 2756 módulos transformados, 4 archivos desplegados (2.35 segundos). Integración Frontend-Backend completada (Sprint 5). Frontend Core con TailAdmin completado (Sprint 4) | inventariador | Usuario |
 | 2026-03-19 | Sprint 5 completado: Workers desplegados exitosamente (wk-api-inmo: https://wk-api-inmo.levantecofem.workers.dev, wk-proceso-inmo: https://wk-proceso-inmo.levantecofem.workers.dev). Tareas completadas: 5.1 (Flujo de Creación de Proyecto), 5.2 (Flujo de Ejecución de Workflow), 5.3 (Visualización de Resultados), 5.4 (Gestión de Errores en Frontend), 5.5 (Optimizaciones). Archivos creados: src/frontend/src/lib/schemas/projectSchema.ts (esquema Zod para validación de I-JSON), src/frontend/src/hooks/useCreateProjectWithUI.ts (hook para creación de proyectos con estados de UI), src/frontend/src/hooks/useWorkflowPolling.ts (hook para polling de estado de workflow), src/frontend/src/hooks/useDebounce.ts (hook para debouncing), src/frontend/src/hooks/useApiErrorHandler.ts (hook para manejo de errores), src/frontend/src/types/errors.ts (tipos de error personalizados), src/frontend/src/components/ErrorBoundary.tsx (ErrorBoundary component). Archivos actualizados: ProjectForm, CreateProjectPage, ProjectDetail, ProjectDetailPage, ResultsPage, ResultsViewer, ReportTab, ProjectList, ProjectCard, StatusBadge, apiClient, queryClient, config/texts.ts, config/errors.ts, config/reports.ts, config/validation.ts, useProjects, useResults, useWorkflow, hooks/index.ts, types/index.ts, components/index.ts. Variables de entorno agregadas: VITE_WORKFLOW_POLLING_INTERVAL (10 segundos), VITE_WORKFLOW_POLLING_MAX_ATTEMPTS (3 intentos). Archivos de configuración actualizados: src/frontend/.env, src/frontend/.env.production, src/frontend/.env.example. Dependencias agregadas: react-syntax-highlighter, remark-gfm, @types/react-syntax-highlighter. Validación typecheck exitosa sin errores de TypeScript | inventariador | Usuario |

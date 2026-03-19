@@ -11,7 +11,12 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "typecheck:frontend": "tsc --noEmit -p src/frontend/tsconfig.json",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "vitest",
+    "test:api": "vitest --config src/workers/api/vitest.config.ts",
+    "test:api:coverage": "vitest --config src/workers/api/vitest.config.ts --coverage",
+    "test:workflow": "vitest --config src/workers/workflow/vitest.config.ts",
+    "test:workflow:coverage": "vitest --config src/workers/workflow/vitest.config.ts --coverage"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.0.0",
@@ -36,6 +41,8 @@
     "@types/react-dom": "^19.0.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.0.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "vitest": "^4.1.0",
     "wrangler": "^3.0.0"
   },
   "engines": {
